@@ -7,14 +7,16 @@ conda activate qiime2-2020.11
 
 READ_DIR="my/read/dir" # Location of reads, change as required.
 QIIME_DIR="my/qiime/dir" # Output directory for generated results
+mkdir -p $QIIME_DIR
 
 SILVA_SEQ_DB="/srv/sw/acepipe_config/qiime_db/silva_seq_db_r138.qza"
 SILVA_TAXONOMY_DB="/srv/sw/acepipe_config/qiime_db/silva_taxonomy_db_r138.qza"
 
-mkdir -p $QIIME_DIR
-
 ID=my_project # Prefix ID, change as required.
 THREADS=36 # Number of threads/CPUs
+
+FORWARD_TRUNC=270
+REVERSE_TRUNC=260
 
 # ------------------------------------------------------------------------
 # Import reads into QIIME. Can either import directory or by constructing a manifest file
@@ -56,8 +58,8 @@ qiime dada2 denoise-paired \
 --i-demultiplexed-seqs $QIIME_DIR/${ID}_sequences.qza \
 --o-table $QIIME_DIR/${ID}_feature_table.qza \
 --o-representative-sequences $QIIME_DIR/${ID}_feature_sequences.qza \
---p-trunc-len-f 270 \
---p-trunc-len-r 260 \
+--p-trunc-len-f $FORWARD_TRUNC \
+--p-trunc-len-r $REVERSE_TRUNC \
 --p-n-threads $THREADS \
 --o-denoising-stats $QIIME_DIR/${ID}_dada2_stats.qza
 
