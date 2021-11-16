@@ -24,8 +24,17 @@ REVERSE_TRUNC=260
 # Build manifest file. Assume that sample files are "_" delimited with the sample ID as the first part of the filename.
 if [[ ! -f $QIIME_DIR/${ID}_sequences.qza ]]; then
 echo "sample-id,absolute-filepath,direction" > $QIIME_DIR/manifest.csv
-ls -1 $READ_DIR/*_R1_*gz | sed 's!.*/!!' | awk -v read_dir=$READ_DIR '{split($0, sample, "_"); print sample[1]","read_dir"/"$0",forward"}' >> $QIIME_DIR/manifest.csv
-ls -1 $READ_DIR/*_R2_*gz | sed 's!.*/!!' | awk -v read_dir=$READ_DIR '{split($0, sample, "_"); print sample[1]","read_dir"/"$0",reverse"}' >> $QIIME_DIR/manifest.csv
+# ls -1 $READ_DIR/*_R1_*gz | sed 's!.*/!!' | awk -v read_dir=$READ_DIR '{split($0, sample, "_"); print sample[1]","read_dir"/"$0",forward"}' >> $QIIME_DIR/manifest.csv
+# ls -1 $READ_DIR/*_R2_*gz | sed 's!.*/!!' | awk -v read_dir=$READ_DIR '{split($0, sample, "_"); print sample[1]","read_dir"/"$0",reverse"}' >> $QIIME_DIR/manifest.csv
+
+for i in $READ_DIR/*_R1_*gz; do
+sample_name=$(basename $i _L001_R1_001.fastq.gz)
+echo -e "$sample_name,$i,forward" >> $QIIME_DIR/manifest.csv
+done
+for i in $READ_DIR/*_R2_*gz; do
+sample_name=$(basename $i _L001_R2_001.fastq.gz)
+echo -e "$sample_name,$i,reverse" >> $QIIME_DIR/manifest.csv
+done
 
 qiime tools import \
   --type 'SampleData[PairedEndSequencesWithQuality]' \
@@ -44,7 +53,16 @@ fi
 # Create a sample metadata file for QIIME. Simply the sample ID
 if [[ ! -f $QIIME_DIR/${ID}_sample_metadata.tsv ]]; then
 echo "Sample ID" > $QIIME_DIR/${ID}_sample_metadata.tsv
-ls -1 $READ_DIR/*_R1_* | sed 's!.*/!!' | awk '{split($0, sample, "_"); print sample[1]}' >> $QIIME_DIR/${ID}_sample_metadata.tsv
+# ls -1 $READ_DIR/*_R1_* | sed 's!.*/!!' | awk '{split($0, sample, "_"); print sample[1]}' >> $QIIME_DIR/${ID}_sample_metadata.tsv
+
+for i in $READ_DIR/*_R1_*gz; do
+sample_name=$(basename $i _L001_R1_001.fastq.gz)
+echo -e "$sample_name" >> $QIIME_DIR/${ID}_sample_metadata.tsv
+done
+for i in $READ_DIR/*_R2_*gz; do
+sample_name=$(basename $i _L001_R2_001.fastq.gz)
+echo -e "$sample_name" >> $QIIME_DIR/${ID}_sample_metadata.tsv
+done
 fi
 # ------------------------------------------
 # Denoise and determine features
